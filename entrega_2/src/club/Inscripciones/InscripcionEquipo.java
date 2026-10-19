@@ -1,4 +1,4 @@
-package Inscripciones;
+package club.Inscripciones;
 
 import java.util.List;
 import java.util.ArrayList;

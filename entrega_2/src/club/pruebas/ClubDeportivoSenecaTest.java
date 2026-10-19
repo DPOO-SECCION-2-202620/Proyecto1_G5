@@ -1,4 +1,4 @@
-package pruebas;
+package club.pruebas;
 
 
 public class ClubDeportivoSenecaTest {
