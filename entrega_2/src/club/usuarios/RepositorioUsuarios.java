@@ -9,24 +9,24 @@ import club.usuarios.Usuario;
 public class RepositorioUsuarios {
 	
 	//atributos
-	private Map<String,Usuario> usuarios;
+	private static final Map<String,Usuario> usuarios = new HashMap<>();
 
 
-	//ctor
-	public RepositorioUsuarios(Map<String,Usuario> usuarios) {
-		this.usuarios = usuarios;
-	}
 	
 	//metodos
-	public Usuario buscarPorEmail(String email) {
+	
+	public static void anadirUsuarioARepo(Usuario usuario) {
+		usuarios.put(usuario.getEmail(), usuario);
+	}
+	
+	public static final Map<String,Usuario> getRepositorioUsuarios(){
+		return usuarios;
+	}
+	
+	public static Usuario buscarPorEmail(String email) {
 		
 		return usuarios.get(email);
 	}
 		
 		
-	}
-	
-	
-	
-
 }

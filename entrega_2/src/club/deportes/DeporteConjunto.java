@@ -17,7 +17,8 @@ public abstract class DeporteConjunto extends Deporte{
 		return cantidadJugadores;
 	}
 	
-	}
-	
 
 }
+	
+
+

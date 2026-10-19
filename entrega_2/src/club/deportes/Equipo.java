@@ -1,8 +1,12 @@
 package club.deportes;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class Equipo {
 	
 	//Atributos
+	private static final Map<String, Equipo> EquiposDisponibles = new HashMap<String,Equipo>();
 	private String nombre;
 	private Categoria categoria;
 	private int cuposDisponibles;

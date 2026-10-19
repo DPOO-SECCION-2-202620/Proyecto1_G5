@@ -8,12 +8,13 @@ public class Socio {
 	public Socio(String email, String constrasenia, LocalDate fechaNacimiento) {
 		super();
 		this.fechaNacimiento = fechaNacimiento;
-	
-	public inscribirseEnEquipo() {
-		
-	}
 	}
 	
 	
-	
+	public LocalDate getFechaNacimiento() {
+		return this.fechaNacimiento;
+	}
+
+
 }
+	

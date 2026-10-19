@@ -3,31 +3,25 @@ import club.usuarios.*;
 
 public class Autenticador {
 	
-	//atributos
-	private RepositorioUsuarios repositorio;
-	
-	//ctor
-	public Autenticador(RepositorioUsuarios repositorio) {
-		this.repositorio = repositorio;
-		
-	}
 	
 	//metodos
-	public Usuario autenticar(String email, String contrasenia) {
+	public void autenticar(String email, String contrasenia) {
 		//obtener usuario por email
-		Usuario usuario = repositorio.buscarPorEmail(email);
+		Usuario usuario = RepositorioUsuarios.buscarPorEmail(email);
 		
+		//validar usuario existente
 		if (usuario == null) {
 			throw new IllegalArgumentException("El usuario no existe");
 		}
-		
-		//verificar contrasenia
+			
+		//validar contrasena
 		if (!usuario.isContrasenia(contrasenia)) {
-			throw new IllegalArgumentException("contrsasenia incorrecta");
+				throw new IllegalArgumentException("contrsasenia incorrecta");
+					
 		}
 		
-		return usuario;
+		//iniciar sesion actual
+		new SesionActual(usuario);
 	}
-	
 
 }
