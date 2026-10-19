@@ -27,8 +27,6 @@ public class InscripcionEquipo {
 	public List<Equipo> consultarEquiposDisponibles(Socio socio, DeporteConjunto deoorte) {
 	List<Equipo> equiposDisponibles = new ArrayList<Equipo>();
 	
-	for ()
-	
 	return equiposDisponibles;
 	
 	}

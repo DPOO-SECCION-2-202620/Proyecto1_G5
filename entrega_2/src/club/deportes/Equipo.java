@@ -1,7 +1,11 @@
 package club.deportes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+
+import club.usuarios.Socio;
 
 public abstract class Equipo {
 	
@@ -24,25 +28,39 @@ public abstract class Equipo {
 		this.cuposDisponibles = cupoMaximo;
 		this.activo = true;
 		this.deporte = deporte;
+		
+		Equipo.EquiposDisponibles.put(nombre, this);
 	}
 
 
 	//metodos
-	public int getCuposDisponibles() {
-		return cuposDisponibles;
-	}
-
-	public void setCuposDisponibles(int cuposDisponibles) {
-		this.cuposDisponibles = cuposDisponibles;
+	public Map<String, Equipo> getEquiposDisponibles(){
+		return EquiposDisponibles;
 	}
 	
 	
+	public List< Equipo> getEquiposDisponiblesPorCategoria(Socio socio, DeporteConjunto deporte){
+		
+		List<Equipo> EquiposEncontrados = new ArrayList<Equipo>();
+		
+		return EquiposEncontrados;
+	}
 	
 	
-	
-	
-	
-	
-	
+	public void ocuparCupoEnEquipo(Equipo equipo) {
+		this.cuposDisponibles -= 1;
+		
+		if (equipo.cuposDisponibles == 0) {
+			EquiposDisponibles.remove(equipo);
+		}
+	}
 
+	
+	public void liberarCupoEnEquipo(Equipo equipo) {
+		this.cuposDisponibles += 1;
+		
+		EquiposDisponibles.put(equipo.nombre, equipo);
+	
+	}
+	
 }
