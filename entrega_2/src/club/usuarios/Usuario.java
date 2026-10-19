@@ -1,4 +1,4 @@
-package usuarios;
+package club.usuarios;
 
 public abstract class Usuario {
 	private String email; 

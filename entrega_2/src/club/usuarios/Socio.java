@@ -1,4 +1,4 @@
-package usuarios;
+package club.usuarios;
 import java.time.LocalDate;
 
 public class Socio {
