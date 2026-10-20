@@ -2,10 +2,11 @@ package club.acceso;
 import club.usuarios.*;
 
 public class Autenticador {
+	private SesionActual sesionActual;
 	
 	
 	//metodos
-	public void autenticar(String email, String contrasenia) {
+	public SesionActual autenticar(String email, String contrasenia) {
 		//obtener usuario por email
 		Usuario usuario = RepositorioUsuarios.buscarPorEmail(email);
 		
@@ -21,7 +22,12 @@ public class Autenticador {
 		}
 		
 		//iniciar sesion actual
-		new SesionActual(usuario);
+		this.sesionActual = new SesionActual(usuario);
+		return this.sesionActual;
+	}
+
+	public SesionActual getSesionActual() {
+		return sesionActual;
 	}
 
 }

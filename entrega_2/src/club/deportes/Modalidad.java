@@ -1,7 +1,8 @@
 package club.deportes;
 
 public enum Modalidad {
-	SOLOS,
+	SENCILLOS,
 	DOBLES
 
 }
+

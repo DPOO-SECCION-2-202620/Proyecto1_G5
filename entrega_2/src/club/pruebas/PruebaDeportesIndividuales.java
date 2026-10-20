@@ -1,39 +1,95 @@
 package club.pruebas;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import club.deportes.DeporteIndividual;
+import club.Inscripciones.InscripcionAcademia;
+import club.deportes.Deporte;
+import club.deportes.Nivel;
 import club.deportes.Modalidad;
+import club.deportes.Tenis;
+import club.partidos.PartidoPractica;
+import club.personal.Entrenador;
+import club.usuarios.Socio;
+import club.usuarios.Usuario;
 
 public class PruebaDeportesIndividuales {
-    @Test void deporteIndividualConservaSuNombre() {
-        DeporteIndividual tenis = new DeporteIndividual("Tenis", List.of(Modalidad.SOLOS)) { };
-        assertEquals("Tenis", tenis.getNombre());
+
+    @BeforeEach
+    void setUp() {
+        Deporte.getDeportesRegistrados().clear();
+        InscripcionAcademia.getInscripciones().clear();
+        PartidoPractica.getPartidos().clear();
     }
 
-    @Disabled("No existen InscripcionAcademia ni Nivel")
     @Test void inscripcionIniciaConNivelPrincipianteYEloCero() {
-        // PENDIENTE: implementar inscripción de academia, nivel y ELO.
+        Socio socio = new Socio("socio@club.co", "clave");
+        InscripcionAcademia inscripcion = InscripcionAcademia.inscribirSocio(socio, new Tenis());
+
+        assertEquals(Nivel.PRINCIPIANTE, inscripcion.getNivel());
+        assertEquals(0.0, inscripcion.getElo(), 0.00001);
     }
-    @Disabled("No existe la clase PartidoPractica")
-    @Test void permiteParticipantesDeNivelesAdyacentes() {
-        // PENDIENTE: implementar compatibilidad de niveles en partidos de práctica.
+    @Test
+    void permiteParticipantesDeNivelesAdyacentes() {
+        Tenis tenis = new Tenis();
+        Socio principiante = socioInscrito("principiante@club.co", tenis);
+        Socio intermedio = socioInscrito("intermedio@club.co", tenis);
+        InscripcionAcademia.buscar(intermedio, tenis).actualizarElo(30);
+
+        PartidoPractica partido = new PartidoPractica(
+                tenis, Modalidad.SENCILLOS, List.of(principiante, intermedio));
+
+        assertEquals(2, partido.getParticipantes().size());
     }
-    @Disabled("No existe la clase PartidoPractica")
-    @Test void rechazaPrincipianteContraAvanzado() {
-        // PENDIENTE: implementar el rechazo por diferencia de nivel.
+
+    @Test
+    void rechazaPrincipianteContraAvanzado() {
+        Tenis tenis = new Tenis();
+        Socio principiante = socioInscrito("principiante@club.co", tenis);
+        Socio avanzado = socioInscrito("avanzado@club.co", tenis);
+        InscripcionAcademia.buscar(avanzado, tenis).actualizarElo(90);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new PartidoPractica(
+                        tenis, Modalidad.SENCILLOS, List.of(principiante, avanzado)));
     }
-    @Disabled("No existen entrenadores ni partidos de práctica")
-    @Test void permiteExcepcionDeEntrenadorJugador() {
-        // PENDIENTE: implementar la excepción del entrenador jugador.
+
+    @Test
+    void permiteExcepcionDeEntrenadorJugador() {
+        Tenis tenis = new Tenis();
+        Socio avanzado = socioInscrito("avanzado@club.co", tenis);
+        InscripcionAcademia.buscar(avanzado, tenis).actualizarElo(90);
+        Entrenador entrenador = new Entrenador("entrenador-jugador@club.co", "clave");
+
+        PartidoPractica partido = new PartidoPractica(tenis, Modalidad.SENCILLOS,
+                List.<Usuario>of(entrenador, avanzado));
+
+        assertTrue(partido.getParticipantes().contains(entrenador));
     }
-    @Disabled("No existe ELO ni finalización de partidos")
-    @Test void actualizaEloUnaSolaVezAlFinalizarPartido() {
-        // PENDIENTE: implementar la actualización de ELO.
+
+    @Test
+    void actualizaEloUnaSolaVezAlFinalizarPartido() {
+        Tenis tenis = new Tenis();
+        Socio ganador = socioInscrito("ganador@club.co", tenis);
+        Socio perdedor = socioInscrito("perdedor@club.co", tenis);
+        PartidoPractica partido = new PartidoPractica(
+                tenis, Modalidad.SENCILLOS, List.of(ganador, perdedor));
+
+        partido.finalizar(10, 5);
+
+        assertEquals(15, InscripcionAcademia.buscar(ganador, tenis).getElo(), 0.00001);
+        assertEquals(3, InscripcionAcademia.buscar(perdedor, tenis).getElo(), 0.00001);
+        assertThrows(IllegalStateException.class, () -> partido.finalizar(10, 5));
+        assertEquals(15, InscripcionAcademia.buscar(ganador, tenis).getElo(), 0.00001);
+    }
+
+    private Socio socioInscrito(String email, Tenis tenis) {
+        Socio socio = new Socio(email, "clave");
+        InscripcionAcademia.inscribirSocio(socio, tenis);
+        return socio;
     }
 }
