@@ -26,6 +26,23 @@ public class InscripcionEquipo {
 		equipo.anadirInscripcion(this);
 		socio.anadirInscripcion(this);
 	}
+
+	public static InscripcionEquipo restaurar(Socio socio, Equipo equipo,
+			Enum<?> posicion, int numeroCamiseta) {
+		if (socio == null || equipo == null || posicion == null
+				|| !((DeporteConjunto) equipo.getDeporte()).getPosiciones().contains(posicion)) {
+			throw new IllegalArgumentException("Los datos de la inscripción no son válidos");
+		}
+		InscripcionEquipo inscripcion = new InscripcionEquipo();
+		inscripcion.socio = socio;
+		inscripcion.equipo = equipo;
+		inscripcion.posicion = posicion;
+		inscripcion.numeroCamiseta = numeroCamiseta;
+		equipo.ocuparCupoEnEquipo();
+		equipo.anadirInscripcion(inscripcion);
+		socio.anadirInscripcion(inscripcion);
+		return inscripcion;
+	}
 	
 	private void validarInscripcion(Socio socio, Equipo equipo, Enum<?> posicion, int numeroCamiseta) {
 		if (!Equipo.getEquiposDisponibles().containsValue(equipo)) {

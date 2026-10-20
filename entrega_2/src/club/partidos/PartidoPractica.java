@@ -27,6 +27,18 @@ public class PartidoPractica {
 		partidos.add(this);
 	}
 
+	private PartidoPractica() { }
+
+	public static PartidoPractica restaurar(DeporteIndividual deporte, Modalidad modalidad,
+			List<Usuario> participantes, boolean finalizado) {
+		if (deporte == null || modalidad == null || participantes == null) {
+			throw new IllegalArgumentException("Faltan datos del partido");
+		}
+		PartidoPractica partido = new PartidoPractica(); partido.deporte = deporte;
+		partido.modalidad = modalidad; partido.participantes = new ArrayList<Usuario>(participantes);
+		partido.finalizado = finalizado; partidos.add(partido); return partido;
+	}
+
 	private void validar(DeporteIndividual deporte, Modalidad modalidad, List<Usuario> participantes) {
 		if (deporte == null || modalidad == null || participantes == null) {
 			throw new IllegalArgumentException("Faltan datos del partido");

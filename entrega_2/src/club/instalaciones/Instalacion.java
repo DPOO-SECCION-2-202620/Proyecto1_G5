@@ -63,4 +63,8 @@ public class Instalacion {
 	public boolean admiteModalidad(Modalidad modalidad) { 
 		return modalidades.contains(modalidad); 
 	}
+
+	public List<Modalidad> getModalidades() {
+		return modalidades;
+	}
 }

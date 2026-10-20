@@ -26,6 +26,16 @@ public class PartidoInterno extends Partido {
 		partidosInternos.add(this);
 	}
 
+	private PartidoInterno() { super(); }
+
+	public static PartidoInterno restaurar(Equipo local, Equipo visitante,
+			LocalDateTime fecha, Entrenador entrenador, List<Socio> participantes) {
+		PartidoInterno partido = new PartidoInterno();
+		partido.restaurarDatos(entrenador, local.getDeporte(), participantes);
+		partido.equipoLocal = local; partido.equipoVisitante = visitante; partido.fecha = fecha;
+		partidosInternos.add(partido); return partido;
+	}
+
 	private static List<Socio> validarYObtenerParticipantes(Administrador administrador,
 			Equipo local, Equipo visitante, LocalDateTime fecha) {
 		if (administrador == null) throw new IllegalStateException("Se requiere un administrador");

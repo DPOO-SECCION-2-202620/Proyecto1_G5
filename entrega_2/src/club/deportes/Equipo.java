@@ -78,6 +78,10 @@ public abstract class Equipo {
 		return cuposDisponibles;
 	}
 
+	public int getCupoMaximo() {
+		return cupoMaximo;
+	}
+
 	public boolean isActivo() {
 		return activo;
 	}
@@ -106,6 +110,8 @@ public abstract class Equipo {
 
 	public void setActivo(boolean activo) {
 		this.activo = activo;
+		if (activo && cuposDisponibles > 0) EquiposDisponibles.put(nombre, this);
+		else EquiposDisponibles.remove(nombre);
 	}
 	
 	

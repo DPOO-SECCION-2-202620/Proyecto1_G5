@@ -16,10 +16,10 @@ import club.usuarios.Socio;
 public class Partido {
 
 	private static final List<Partido> partidos = new ArrayList<Partido>();
-	private Entrenador entrenador;
-	private Deporte deporte;
-	private List<Socio> participantes;
-	private List<EstadisticaJugador> estadisticas = new ArrayList<EstadisticaJugador>();
+	protected Entrenador entrenador;
+	protected Deporte deporte;
+	protected List<Socio> participantes;
+	protected List<EstadisticaJugador> estadisticas = new ArrayList<EstadisticaJugador>();
 
 	public Partido(Entrenador entrenador, Deporte deporte, List<Socio> participantes) {
 		if (entrenador == null || deporte == null || participantes == null) {
@@ -29,6 +29,27 @@ public class Partido {
 		this.deporte = deporte;
 		this.participantes = new ArrayList<Socio>(participantes);
 		partidos.add(this);
+	}
+
+	protected Partido() { }
+
+	protected void restaurarDatos(Entrenador entrenador, Deporte deporte, List<Socio> participantes) {
+		if (entrenador == null || deporte == null || participantes == null) {
+			throw new IllegalArgumentException("Faltan datos del partido");
+		}
+		this.entrenador = entrenador; this.deporte = deporte;
+		this.participantes = new ArrayList<Socio>(participantes); partidos.add(this);
+	}
+
+	public static Partido restaurar(Entrenador entrenador, Deporte deporte, List<Socio> participantes) {
+		Partido partido = new Partido(); partido.restaurarDatos(entrenador, deporte, participantes); return partido;
+	}
+
+	public void restaurarEstadistica(EstadisticaJugador estadistica) {
+		if (estadistica == null || !participantes.contains(estadistica.getSocio())) {
+			throw new IllegalArgumentException("La estadística no corresponde a un participante");
+		}
+		estadistica.asociarPartido(this); estadisticas.add(estadistica);
 	}
 
 	public void registrarEstadistica(Entrenador entrenador, EstadisticaJugador estadistica) {

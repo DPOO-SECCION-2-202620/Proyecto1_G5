@@ -45,6 +45,14 @@ public class Socio extends Usuario {
 	public int getSuspensionesTotales() { return suspensionesTotales; }
 	public int getSuspensionRestante() { return suspensionRestante; }
 
+	public void restaurarSuspensiones(int suspensionesTotales, int suspensionRestante) {
+		if (suspensionesTotales < 0 || suspensionRestante < 0) {
+			throw new IllegalArgumentException("Las suspensiones no son válidas");
+		}
+		this.suspensionesTotales = suspensionesTotales;
+		this.suspensionRestante = suspensionRestante;
+	}
+
 	public void setFechaNacimiento(LocalDate fechaNacimiento) {
 		if (this.fechaNacimiento != null) {
 			throw new IllegalStateException("Para cambiar su fecha de nacimiento hable con un administrador");

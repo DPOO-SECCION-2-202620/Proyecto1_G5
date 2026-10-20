@@ -21,6 +21,10 @@ public abstract class Usuario {
 	public String getEmail() {
 		return email;
 	} 
+
+	public String getContrasenia() {
+		return contrasenia;
+	}
 	
 	public boolean isContrasenia(String contraseniaIngresada) {
 		if(contrasenia.equals(contraseniaIngresada)) {

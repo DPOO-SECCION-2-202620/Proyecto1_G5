@@ -30,6 +30,19 @@ public class PartidoCompetencia extends Partido {
 		competencia.registrarPartido(this);
 	}
 
+	private PartidoCompetencia() { super(); }
+
+	public static PartidoCompetencia restaurar(Competencia competencia, Equipo local,
+			Equipo visitante, LocalDateTime fecha, Entrenador entrenador,
+			List<Socio> participantes, Integer marcadorLocal, Integer marcadorVisitante) {
+		PartidoCompetencia partido = new PartidoCompetencia();
+		partido.restaurarDatos(entrenador, competencia.getDeporte(), participantes);
+		partido.competencia = competencia; partido.equipoLocal = local;
+		partido.equipoVisitante = visitante; partido.fecha = fecha;
+		partido.marcadorLocal = marcadorLocal; partido.marcadorVisitante = marcadorVisitante;
+		competencia.registrarPartido(partido); return partido;
+	}
+
 	private static List<Socio> validarYObtenerParticipantes(Competencia competencia,
 			Equipo equipoLocal, Equipo equipoVisitante, LocalDateTime fecha) {
 		if (!Competencia.getCompetencias().containsValue(competencia)

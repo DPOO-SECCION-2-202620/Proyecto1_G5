@@ -18,6 +18,7 @@ public class Competencia {
 
 	private static final Map<String, Competencia> competencias = new LinkedHashMap<String, Competencia>();
 	private String nombre;
+	private String entidadOrganizadora;
 	private int anio;
 	private String temporada;
 	private FormatoCompetencia formato;
@@ -37,6 +38,7 @@ public class Competencia {
 			throw new IllegalArgumentException("Los datos de la competencia no son válidos");
 		}
 		this.nombre = nombre;
+		this.entidadOrganizadora = entidadOrganizadora;
 		this.anio = anio;
 		this.temporada = temporada;
 		this.formato = formato;
@@ -66,6 +68,14 @@ public class Competencia {
 	}
 
 	public void registrarPartido(PartidoCompetencia partido) { partidos.add(partido); }
+
+	public void restaurarEquipo(Equipo equipo, int puntos) {
+		if (equipo == null || puntos < 0 || equipos.contains(equipo)) {
+			throw new IllegalArgumentException("La participación no es válida");
+		}
+		equipos.add(equipo);
+		this.puntos.put(equipo, puntos);
+	}
 
 	public void registrarResultado(Equipo local, Equipo visitante, int marcadorLocal, int marcadorVisitante) {
 		if (marcadorLocal == marcadorVisitante) {
@@ -108,6 +118,14 @@ public class Competencia {
 	
 	public int getAnio() { 
 		return anio; 
+	}
+
+	public String getEntidadOrganizadora() {
+		return entidadOrganizadora;
+	}
+
+	public int getMinimoJugadores() {
+		return minimoJugadores;
 	}
 	
 	public String getTemporada() { 

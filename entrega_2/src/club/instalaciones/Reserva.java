@@ -30,6 +30,25 @@ public class Reserva {
 		reservas.add(this);
 	}
 
+	public static Reserva restaurar(List<Socio> participantes, Instalacion instalacion,
+			LocalDateTime fechaHora, Duration duracion, Modalidad modalidad) {
+		if (participantes == null || participantes.isEmpty() || instalacion == null
+				|| fechaHora == null || duracion == null || modalidad == null) {
+			throw new IllegalArgumentException("Los datos de la reserva no son válidos");
+		}
+		Reserva reserva = new Reserva();
+		reserva.participantes = new ArrayList<Socio>(participantes);
+		reserva.responsable = participantes.get(0);
+		reserva.instalacion = instalacion;
+		reserva.fechaHora = fechaHora;
+		reserva.duracion = duracion;
+		reserva.modalidad = modalidad;
+		reservas.add(reserva);
+		return reserva;
+	}
+
+	private Reserva() { }
+
 	private void validar(List<Socio> participantes, Instalacion instalacion,
 			LocalDateTime inicio, Duration duracion, Modalidad modalidad) {
 		if (participantes == null || participantes.isEmpty() || instalacion == null

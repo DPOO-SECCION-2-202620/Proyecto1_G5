@@ -41,6 +41,29 @@ public class SesionEntrenamiento {
 		sesiones.add(this);
 	}
 
+	public static SesionEntrenamiento restaurar(Entrenador entrenador, Deporte deporte,
+			Instalacion instalacion, LocalDateTime fechaHora, Duration duracion,
+			List<Socio> convocados) {
+		if (entrenador == null || deporte == null || instalacion == null
+				|| fechaHora == null || duracion == null || convocados == null) {
+			throw new IllegalArgumentException("Los datos de la sesión no son válidos");
+		}
+		SesionEntrenamiento sesion = new SesionEntrenamiento();
+		sesion.entrenador = entrenador; sesion.deporte = deporte; sesion.instalacion = instalacion;
+		sesion.fechaHora = fechaHora; sesion.duracion = duracion;
+		sesion.convocados.addAll(convocados);
+		instalacion.registrarSesion(sesion); sesiones.add(sesion);
+		return sesion;
+	}
+
+	public void restaurarRegistro(Socio socio, EstadoAsistencia estado,
+			Integer calificacion, String comentario) {
+		if (!convocados.contains(socio)) throw new IllegalArgumentException("El socio no está convocado");
+		registros.put(socio, new RegistroEntrenamiento(this, socio, estado, calificacion, comentario));
+	}
+
+	private SesionEntrenamiento() { }
+
 	private void validarDatos(Entrenador entrenador, Deporte deporte, Instalacion instalacion,
 			LocalDateTime fechaHora, Duration duracion) {
 		if (entrenador == null || deporte == null || instalacion == null
