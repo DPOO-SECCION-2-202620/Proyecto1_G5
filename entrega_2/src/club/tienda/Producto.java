@@ -10,6 +10,10 @@ public abstract class Producto {
 	//ctor
 	public Producto(String nombre, String descripcion, double precio) {
 		super();
+		if (nombre == null || nombre.isBlank() || descripcion == null
+				|| !Double.isFinite(precio) || precio < 0) {
+			throw new IllegalArgumentException("Los datos del producto no son válidos");
+		}
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		this.precio = precio;
@@ -22,6 +26,7 @@ public abstract class Producto {
 	}
 
 	public void actualizarPrecio(double precio) {
+		if (!Double.isFinite(precio) || precio < 0) throw new IllegalArgumentException("El precio no es válido");
 		this.precio = precio;
 	}
 

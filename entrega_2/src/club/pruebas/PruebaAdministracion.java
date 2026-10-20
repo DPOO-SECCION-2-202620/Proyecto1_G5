@@ -1,41 +1,127 @@
 package club.pruebas;
 
-import org.junit.jupiter.api.Disabled;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
 
+import club.deportes.Categoria;
+import club.deportes.Equipo;
+import club.deportes.Futbol;
+import club.personal.Entrenador;
+import club.personal.Fisioterapeuta;
+import club.personal.PlantillaTurnos;
+import club.personal.SolicitudCambioTurno;
+import club.personal.Turno;
+import club.tienda.Articulo;
+import club.tienda.EstadoSugerencia;
+import club.tienda.GestorTienda;
+import club.tienda.Inventario;
+import club.tienda.SugerenciaProducto;
+import club.tienda.TipoSugerencia;
+import club.tienda.UbicacionInventario;
+import club.usuarios.Administrador;
+import club.usuarios.Socio;
+
 public class PruebaAdministracion {
-    @Disabled("Equipo no dispone de una operación pública de desactivación")
-    @Test void daDeBajaEquipo() {
-        // PENDIENTE: implementar la baja administrativa de equipos.
-    }
+	@Test void daDeBajaEquipo() {
+		Administrador admin = new Administrador("admin-baja-equipo@club.co", "clave");
+		Equipo equipo = new Equipo("Equipo de baja", Categoria.MAYORES, 10, new Futbol()) { };
+		admin.darDeBaja(equipo);
+		assertFalse(equipo.isActivo());
+		assertTrue(Equipo.getEquiposRegistrados().containsValue(equipo));
+	}
 
-    @Disabled("Socio no dispone de una operación pública de baja")
-    @Test void daDeBajaSocio() {
-        // PENDIENTE: implementar la baja de socios y sus permisos.
-    }
+	@Test void daDeBajaSocio() {
+		Administrador admin = new Administrador("admin-baja-socio@club.co", "clave");
+		Socio socio = new Socio("socio-baja@club.co", "clave");
+		admin.darDeBaja(socio);
+		assertFalse(socio.isActivo());
+	}
 
-    @Disabled("No existen las clases Inventario ni Ubicacion")
-    @Test void trasladaExistenciaEntreUbicacionesSinAlterarTotal() {
-        // PENDIENTE: implementar inventario y traslado de existencias.
-    }
+	@Test void trasladaExistenciaEntreUbicacionesSinAlterarTotal() {
+		ContextoInventario contexto = inventario();
+		contexto.gestor.trasladar(contexto.origen, contexto.destino, 4);
+		assertEquals(10, contexto.origen.consultarCantidad() + contexto.destino.consultarCantidad());
+		assertEquals(6, contexto.origen.consultarCantidad());
+		assertEquals(4, contexto.destino.consultarCantidad());
+	}
 
-    @Disabled("No existen las clases Inventario ni Ubicacion")
-    @Test void rechazaTrasladoConStockInsuficiente() {
-        // PENDIENTE: implementar el rechazo por stock insuficiente.
-    }
+	@Test void rechazaTrasladoConStockInsuficiente() {
+		ContextoInventario contexto = inventario();
+		assertThrows(IllegalStateException.class,
+				() -> contexto.gestor.trasladar(contexto.origen, contexto.destino, 11));
+		assertEquals(10, contexto.origen.consultarCantidad());
+		assertEquals(0, contexto.destino.consultarCantidad());
+	}
 
-    @Disabled("No existe la clase SugerenciaProducto")
-    @Test void soloAdministradorApruebaSugerencias() {
-        // PENDIENTE: implementar sugerencias y autorización administrativa.
-    }
+	@Test void soloAdministradorApruebaSugerencias() {
+		GestorTienda gestor = new GestorTienda();
+		SugerenciaProducto sugerencia = new SugerenciaProducto("Producto", "Nuevo",
+				TipoSugerencia.ARTICULO, new Entrenador("sugerente@club.co", "clave"));
+		gestor.registrarSugerencia(sugerencia);
+		assertThrows(IllegalArgumentException.class, () -> gestor.aprobarSugerencia(sugerencia, null));
+		gestor.aprobarSugerencia(sugerencia, new Administrador("admin-sugerencia@club.co", "clave"));
+		assertEquals(EstadoSugerencia.APROBADA, sugerencia.getEstado());
+	}
 
-    @Disabled("No existen Turno ni SolicitudCambioTurno")
-    @Test void cambioDeTurnoNoPuedeReducirCoberturaBajoDosEntrenadoresYUnFisio() {
-        // PENDIENTE: implementar turnos y la regla mínima de cobertura.
-    }
+	@Test void cambioDeTurnoNoPuedeReducirCoberturaBajoDosEntrenadoresYUnFisio() {
+		ContextoTurnos contexto = turnos();
+		Turno reducido = new Turno(contexto.primero.getEmpleado(),
+				contexto.inicio.plusHours(1), contexto.fin);
+		SolicitudCambioTurno solicitud = contexto.plantilla.solicitarCambio(contexto.primero, reducido);
+		assertThrows(IllegalStateException.class,
+				() -> contexto.plantilla.aprobarCambio(contexto.admin, solicitud));
+		assertTrue(contexto.plantilla.getTurnos().contains(contexto.primero));
+	}
 
-    @Disabled("No existen Turno ni SolicitudCambioTurno")
-    @Test void cambioConCoberturaSuficienteSeAprueba() {
-        // PENDIENTE: implementar la aprobación de cambios de turno.
-    }
+	@Test void cambioConCoberturaSuficienteSeAprueba() {
+		ContextoTurnos contexto = turnos();
+		Turno reemplazo = new Turno(new Entrenador("reemplazo@club.co", "clave"), contexto.inicio, contexto.fin);
+		SolicitudCambioTurno solicitud = contexto.plantilla.solicitarCambio(contexto.primero, reemplazo);
+		contexto.plantilla.aprobarCambio(contexto.admin, solicitud);
+		assertTrue(solicitud.isAprobada());
+		assertTrue(contexto.plantilla.getTurnos().contains(reemplazo));
+	}
+
+	private ContextoInventario inventario() {
+		GestorTienda gestor = new GestorTienda();
+		Articulo articulo = new Articulo("Balón inventario", "Balón", 20, "Deporte");
+		UbicacionInventario bodega = new UbicacionInventario("bodega-admin", "Bodega");
+		UbicacionInventario tienda = new UbicacionInventario("tienda-admin", "Tienda");
+		gestor.registrarProducto(articulo); gestor.registrarUbicacion(bodega); gestor.registrarUbicacion(tienda);
+		Inventario origen = new Inventario(articulo, bodega, 0);
+		Inventario destino = new Inventario(articulo, tienda, 0);
+		gestor.reabastecer(origen, 10); gestor.reabastecer(destino, 1); destino.descontar(1);
+		return new ContextoInventario(gestor, origen, destino);
+	}
+
+	private ContextoTurnos turnos() {
+		LocalDateTime inicio = LocalDateTime.now().plusDays(1).withHour(8).withMinute(0).withSecond(0).withNano(0);
+		LocalDateTime fin = inicio.plusHours(8);
+		PlantillaTurnos plantilla = new PlantillaTurnos();
+		Turno primero = new Turno(new Entrenador("entrenador1-turno@club.co", "clave"), inicio, fin);
+		plantilla.agregarTurno(primero);
+		plantilla.agregarTurno(new Turno(new Entrenador("entrenador2-turno@club.co", "clave"), inicio, fin));
+		plantilla.agregarTurno(new Turno(new Fisioterapeuta("fisio-turno@club.co", "clave"), inicio, fin));
+		return new ContextoTurnos(plantilla, primero, inicio, fin,
+				new Administrador("admin-turno@club.co", "clave"));
+	}
+
+	private static class ContextoInventario {
+		private GestorTienda gestor; private Inventario origen; private Inventario destino;
+		private ContextoInventario(GestorTienda gestor, Inventario origen, Inventario destino) {
+			this.gestor = gestor; this.origen = origen; this.destino = destino;
+		}
+	}
+
+	private static class ContextoTurnos {
+		private PlantillaTurnos plantilla; private Turno primero; private LocalDateTime inicio;
+		private LocalDateTime fin; private Administrador admin;
+		private ContextoTurnos(PlantillaTurnos plantilla, Turno primero, LocalDateTime inicio,
+				LocalDateTime fin, Administrador admin) {
+			this.plantilla = plantilla; this.primero = primero; this.inicio = inicio; this.fin = fin; this.admin = admin;
+		}
+	}
 }

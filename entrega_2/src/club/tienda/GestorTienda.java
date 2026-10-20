@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import club.usuarios.Administrador;
-import club.usuarios.Empleado;
+import club.personal.Empleado;
 import club.usuarios.Socio;
 import club.usuarios.Usuario;
 
@@ -376,6 +376,10 @@ public class GestorTienda {
 
         return resultado;
     }
+
+	public List<Venta> getVentas() {
+		return new ArrayList<Venta>(ventas);
+	}
 
     // -----------------------------
     // SUGERENCIAS

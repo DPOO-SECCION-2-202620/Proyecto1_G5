@@ -17,6 +17,7 @@ public class Instalacion {
 	private List<SesionEntrenamiento> sesiones = new ArrayList<SesionEntrenamiento>();
 	private DeporteIndividual deporteIndividual;
 	private List<Modalidad> modalidades = new ArrayList<Modalidad>();
+	private boolean techada;
 
 	public Instalacion(String nombre) {
 		this.nombre = nombre;
@@ -24,9 +25,15 @@ public class Instalacion {
 	}
 
 	public Instalacion(String nombre, DeporteIndividual deporteIndividual, List<Modalidad> modalidades) {
+		this(nombre, deporteIndividual, modalidades, false);
+	}
+
+	public Instalacion(String nombre, DeporteIndividual deporteIndividual,
+			List<Modalidad> modalidades, boolean techada) {
 		this(nombre);
 		this.deporteIndividual = deporteIndividual;
 		this.modalidades = new ArrayList<Modalidad>(modalidades);
+		this.techada = techada;
 	}
 
 	public String getNombre() {
@@ -67,4 +74,6 @@ public class Instalacion {
 	public List<Modalidad> getModalidades() {
 		return modalidades;
 	}
+
+	public boolean isTechada() { return techada; }
 }

@@ -3,7 +3,7 @@ package club.tienda;
 import club.personal.*;
 import club.usuarios.*;
 
-public abstract class SugerenciaProducto {
+public class SugerenciaProducto {
 	
 	//atributos
 	private String nombre;
@@ -17,7 +17,10 @@ public abstract class SugerenciaProducto {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		this.tipo = tipo;
-		this.estado = EstadoSugerencia.APROBADA;
+		if (nombre == null || nombre.isBlank() || descripcion == null || tipo == null || solicitante == null) {
+			throw new IllegalArgumentException("Los datos de la sugerencia no son válidos");
+		}
+		this.estado = EstadoSugerencia.PENDIENTE;
 		this.solicitante = solicitante;
 	}
 
@@ -40,11 +43,15 @@ public abstract class SugerenciaProducto {
 	}
 	
 	public void aprobar(Administrador admin) {
-		
+		if (admin == null) throw new IllegalStateException("Solo un administrador puede aprobar sugerencias");
+		if (estado != EstadoSugerencia.PENDIENTE) throw new IllegalStateException("La sugerencia ya fue procesada");
+		estado = EstadoSugerencia.APROBADA;
 	}
 	
 	public void noAprobar(Administrador admin) {
-		
+		if (admin == null) throw new IllegalStateException("Solo un administrador puede rechazar sugerencias");
+		if (estado != EstadoSugerencia.PENDIENTE) throw new IllegalStateException("La sugerencia ya fue procesada");
+		estado = EstadoSugerencia.RECHAZADA;
 	}
 	
 	

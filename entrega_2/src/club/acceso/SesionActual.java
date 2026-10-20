@@ -22,6 +22,12 @@ import club.partidos.Partido;
 import club.partidos.PartidoInterno;
 import club.partidos.PartidoPractica;
 import club.personal.Entrenador;
+import club.reportes.ConsultasAdministrativas;
+import club.reportes.PeriodoReporte;
+import club.reportes.ReporteDeportivo;
+import club.reportes.RubroVenta;
+import club.tienda.GestorTienda;
+import club.tienda.Venta;
 import club.usuarios.*;
 
 public class SesionActual {
@@ -161,6 +167,37 @@ public class SesionActual {
 		return obtenerAdministrador().programarPartidoInterno(local, visitante, fecha, entrenador);
 	}
 
+	public void registrarVenta(GestorTienda gestor, Venta venta) {
+		validarSesionActiva();
+		if (venta.getComprador() != usuarioActual) throw new IllegalStateException("La venta no corresponde al usuario autenticado");
+		gestor.registrarVenta(venta);
+	}
+
+	public void darDeBaja(Equipo equipo) { obtenerAdministrador().darDeBaja(equipo); }
+	public void darDeBaja(Socio socio) { obtenerAdministrador().darDeBaja(socio); }
+
+	public List<Reserva> consultarReservasAdministrativas() {
+		return new ConsultasAdministrativas().consultarReservas(obtenerAdministrador());
+	}
+
+	public List<Partido> consultarPartidosAdministrativos() {
+		return new ConsultasAdministrativas().consultarPartidos(obtenerAdministrador());
+	}
+
+	public List<SesionEntrenamiento> consultarSesionesAdministrativas() {
+		return new ConsultasAdministrativas().consultarSesiones(obtenerAdministrador());
+	}
+
+	public double consolidarVentas(GestorTienda gestor, RubroVenta rubro,
+			PeriodoReporte periodo, LocalDate fecha) {
+		return new ConsultasAdministrativas().consolidarVentas(
+				obtenerAdministrador(), gestor, rubro, periodo, fecha);
+	}
+
+	public ReporteDeportivo generarReporteDeportivo() {
+		return new ConsultasAdministrativas().generarReporteDeportivo(obtenerAdministrador());
+	}
+
 	public boolean haySesionAtiva() {
 		return this.usuarioActual != null;
 	}
@@ -171,6 +208,7 @@ public class SesionActual {
 
 	private void validarSesionActiva() {
 		if (!haySesionAtiva()) throw new IllegalStateException("No hay una sesión activa");
+		if (!usuarioActual.isActivo()) throw new IllegalStateException("El usuario está inactivo");
 	}
 
 	private Socio obtenerSocio() {

@@ -7,6 +7,7 @@ import club.usuarios.RepositorioUsuarios;
 public abstract class Usuario {
 	private String email; 
 	private String contrasenia;
+	private boolean activo;
 	
 	
 	
@@ -15,6 +16,7 @@ public abstract class Usuario {
 		super();
 		this.email = email;
 		this.contrasenia = contrasenia;
+		this.activo = true;
 		RepositorioUsuarios.anadirUsuarioARepo(this);;
 	}
 
@@ -30,6 +32,14 @@ public abstract class Usuario {
 		if(contrasenia.equals(contraseniaIngresada)) {
 			return true; }else {return false;
 		}
+	}
+
+	public boolean isActivo() {
+		return activo;
+	}
+
+	public void setActivo(boolean activo) {
+		this.activo = activo;
 	}
 	
 	

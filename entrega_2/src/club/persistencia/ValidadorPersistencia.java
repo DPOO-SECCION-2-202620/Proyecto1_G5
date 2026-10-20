@@ -30,12 +30,15 @@ final class ValidadorPersistencia {
 		Map<String, String> usuarios = new LinkedHashMap<String, String>();
 		for (Map<String, String> r : registros) {
 			String tipo = requerido(r, "tipo");
-			if (!List.of("SOCIO", "ADMINISTRADOR", "ENTRENADOR").contains(tipo)) throw new PersistenciaException("Tipo de usuario desconocido: " + tipo);
+			if (!List.of("SOCIO", "ADMINISTRADOR", "ENTRENADOR", "FISIOTERAPEUTA").contains(tipo)) throw new PersistenciaException("Tipo de usuario desconocido: " + tipo);
 			String email = requerido(r, "email"); requerido(r, "contrasenia");
+			validarBooleano(r.getOrDefault("activo", "true"));
 			if (usuarios.put(email, tipo) != null) throw new PersistenciaException("Usuario duplicado: " + email);
 			if (r.containsKey("fechaNacimiento")) LocalDate.parse(r.get("fechaNacimiento"));
 			if (Integer.parseInt(r.getOrDefault("suspensionesTotales", "0")) < 0 || Integer.parseInt(r.getOrDefault("suspensionRestante", "0")) < 0)
 				throw new PersistenciaException("Suspensiones inválidas");
+			if (Integer.parseInt(r.getOrDefault("puntosFidelidad", "0")) < 0)
+				throw new PersistenciaException("Puntos de fidelidad inválidos");
 		}
 		return usuarios;
 	}

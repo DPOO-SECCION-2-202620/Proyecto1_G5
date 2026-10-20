@@ -8,6 +8,7 @@ import club.competencias.PartidoCompetencia;
 import club.deportes.Equipo;
 import club.partidos.PartidoInterno;
 import club.personal.Entrenador;
+import club.tienda.SugerenciaProducto;
 
 public class Administrador extends Usuario {
 
@@ -39,5 +40,27 @@ public class Administrador extends Usuario {
 	public PartidoInterno programarPartidoInterno(Equipo local, Equipo visitante,
 			LocalDateTime fecha, Entrenador entrenador) {
 		return new PartidoInterno(this, local, visitante, fecha, entrenador);
+	}
+
+	public void darDeBaja(Equipo equipo) {
+		if (equipo == null || !Equipo.getEquiposRegistrados().containsValue(equipo)) {
+			throw new IllegalArgumentException("El equipo no existe");
+		}
+		equipo.setActivo(false);
+	}
+
+	public void darDeBaja(Socio socio) {
+		if (socio == null || RepositorioUsuarios.buscarPorEmail(socio.getEmail()) != socio) {
+			throw new IllegalArgumentException("El socio no existe");
+		}
+		socio.setActivo(false);
+	}
+
+	public void aprobarSugerencia(SugerenciaProducto sugerencia) {
+		sugerencia.aprobar(this);
+	}
+
+	public void rechazarSugerencia(SugerenciaProducto sugerencia) {
+		sugerencia.noAprobar(this);
 	}
 }

@@ -14,6 +14,9 @@ public class Autenticador {
 		if (usuario == null) {
 			throw new IllegalArgumentException("El usuario no existe");
 		}
+		if (!usuario.isActivo()) {
+			throw new IllegalStateException("El usuario está inactivo");
+		}
 			
 		//validar contrasena
 		if (!usuario.isContrasenia(contrasenia)) {

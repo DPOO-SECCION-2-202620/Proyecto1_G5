@@ -20,6 +20,10 @@ public class Socio extends Usuario {
 		super(email, contrasenia);
 		this.puntosFidelidad = new SaldoFidelidad();
 	}
+
+	public SaldoFidelidad getSaldoFidelidad() {
+		return puntosFidelidad;
+	}
 	
 	
 	public LocalDate getFechaNacimiento() {

@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import club.usuarios.Usuario;
+import club.deportes.Padel;
+import club.deportes.TenisDeMesa;
+import club.instalaciones.Instalacion;
 
 public class VentaCafeteria extends Venta {
 
@@ -16,13 +19,19 @@ public class VentaCafeteria extends Venta {
     // Atributos
     private double propinaPorcentaje;
     private boolean avisoAlergenosRealizado;
+	private Instalacion instalacion;
 
     // Constructor 1: venta nueva
     public VentaCafeteria(Usuario comprador) {
+		this(comprador, null);
+	}
+
+	public VentaCafeteria(Usuario comprador, Instalacion instalacion) {
         super(comprador);
 
         this.propinaPorcentaje = PROPINA_SUGERIDA;
         this.avisoAlergenosRealizado = false;
+		this.instalacion = instalacion;
     }
 
     // Constructor 2: venta historica
@@ -128,6 +137,11 @@ public class VentaCafeteria extends Venta {
                 throw new IllegalStateException(
                     "Primero se deben informar los alergenos");
             }
+
+			if (detalle.getProducto() instanceof Bebida
+					&& ((Bebida) detalle.getProducto()).esCaliente()) {
+				validarBebidaCaliente();
+			}
         }
 
         double base = calcularSubtotal();
@@ -158,4 +172,16 @@ public class VentaCafeteria extends Venta {
     public boolean isAvisoAlergenosRealizado() {
         return avisoAlergenosRealizado;
     }
+
+	public double getPropina() {
+		return calcularSubtotal() * propinaPorcentaje;
+	}
+
+	private void validarBebidaCaliente() {
+		if (instalacion == null) return;
+		if (instalacion.getDeporteIndividual() instanceof Padel
+				|| (instalacion.getDeporteIndividual() instanceof TenisDeMesa && instalacion.isTechada())) {
+			throw new IllegalStateException("No se permiten bebidas calientes en esta instalación");
+		}
+	}
 }
