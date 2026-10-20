@@ -8,10 +8,10 @@ public class DetalleVenta {
 	private Producto producto;
 
 	//ctor
-	public DetalleVenta(int cantidad, double precioUnitario, Producto producto) {
+	public DetalleVenta(int cantidad,  Producto producto) {
 		super();
 		this.cantidad = cantidad;
-		this.precioUnitario = precioUnitario;
+		this.precioUnitario = producto.getPrecio();
 		this.producto = producto;
 	}
 	
@@ -19,6 +19,20 @@ public class DetalleVenta {
 	public double getSubtotal() {
 		return cantidad * precioUnitario;
 	}
+
+	public int getCantidad() {
+		return cantidad;
+	}
+
+	public double getPrecioUnitario() {
+		return precioUnitario;
+	}
+
+	public Producto getProducto() {
+		return producto;
+	}
+	
+	
 
 	
 	
