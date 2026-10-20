@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import club.Inscripciones.InscripcionEquipo;
+import club.tienda.SaldoFidelidad;
 
 public class Socio extends Usuario {
 
@@ -11,9 +12,13 @@ public class Socio extends Usuario {
 	private List<InscripcionEquipo> inscripciones = new ArrayList<InscripcionEquipo>();
 	private int suspensionesTotales;
 	private int suspensionRestante;
+	
+	private SaldoFidelidad puntosFidelidad;
+	
 
 	public Socio(String email, String contrasenia) {
 		super(email, contrasenia);
+		this.puntosFidelidad = new SaldoFidelidad();
 	}
 	
 	
