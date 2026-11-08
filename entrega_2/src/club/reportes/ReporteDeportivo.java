@@ -19,7 +19,15 @@ public class ReporteDeportivo {
 		this.rankings = new ArrayList<InscripcionAcademia>(rankings);
 	}
 
-	public List<RegistroEntrenamiento> getAsistencias() { return new ArrayList<RegistroEntrenamiento>(asistencias); }
-	public List<Partido> getResultados() { return new ArrayList<Partido>(resultados); }
-	public List<InscripcionAcademia> getRankings() { return new ArrayList<InscripcionAcademia>(rankings); }
+	public List<RegistroEntrenamiento> getAsistencias() { 
+		return new ArrayList<RegistroEntrenamiento>(asistencias); 
+	}
+	
+	public List<Partido> getResultados() { 
+		return new ArrayList<Partido>(resultados); 
+	}
+	
+	public List<InscripcionAcademia> getRankings() { 
+		return new ArrayList<InscripcionAcademia>(rankings); 
+	}
 }

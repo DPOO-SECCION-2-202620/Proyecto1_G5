@@ -28,6 +28,10 @@ import club.reportes.ReporteDeportivo;
 import club.reportes.RubroVenta;
 import club.tienda.GestorTienda;
 import club.tienda.Venta;
+import club.torneos.TipoTorneo;
+import club.torneos.Torneo;
+import club.torneos.TorneoInterno;
+import club.torneos.PersonaExterna;
 import club.usuarios.*;
 
 public class SesionActual {
@@ -165,6 +169,29 @@ public class SesionActual {
 	public PartidoInterno programarPartidoInterno(Equipo local, Equipo visitante,
 			LocalDateTime fecha, Entrenador entrenador) {
 		return obtenerAdministrador().programarPartidoInterno(local, visitante, fecha, entrenador);
+	}
+
+	public TorneoInterno crearTorneo(String deporte, String categoria, String modalidad,
+			int cupos, TipoTorneo tipo, double tarifa, Torneo.Formato formato,
+			LocalDateTime fechaInicio) {
+		return obtenerAdministrador().crearTorneo(deporte, categoria, modalidad,
+				cupos, tipo, tarifa, formato, fechaInicio);
+	}
+
+	public void iniciarTorneo(TorneoInterno torneo) {
+		obtenerAdministrador().iniciarTorneo(torneo);
+	}
+
+	public void finalizarTorneo(TorneoInterno torneo) {
+		obtenerAdministrador().finalizarTorneo(torneo);
+	}
+
+	public void inscribirExterno(TorneoInterno torneo, PersonaExterna participante) {
+		obtenerAdministrador().inscribirExterno(torneo, participante);
+	}
+
+	public void inscribirEquipoTorneo(TorneoInterno torneo, Equipo equipo) {
+		obtenerEntrenador().inscribirEquipo(torneo, equipo);
 	}
 
 	public void registrarVenta(GestorTienda gestor, Venta venta) {

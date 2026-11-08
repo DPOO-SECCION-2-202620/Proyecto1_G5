@@ -36,6 +36,14 @@ public class PlantillaTurnos {
 
 	public List<Turno> getTurnos() { return new ArrayList<Turno>(turnos); }
 
+	public boolean estaDeTurno(Empleado empleado, LocalDateTime momento) {
+		if (empleado == null || momento == null) return false;
+		for (Turno turno : turnos) {
+			if (turno.getEmpleado() == empleado && turno.cubre(momento)) return true;
+		}
+		return false;
+	}
+
 	private boolean mantieneCobertura(List<Turno> propuestos) {
 		List<LocalDateTime> momentos = new ArrayList<LocalDateTime>();
 		for (Turno turno : propuestos) { momentos.add(turno.getInicio()); momentos.add(turno.getFin()); }

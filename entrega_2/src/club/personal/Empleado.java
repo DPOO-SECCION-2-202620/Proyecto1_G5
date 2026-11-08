@@ -13,4 +13,5 @@ public abstract class Empleado extends Usuario {
 	public SaldoFidelidad getSaldoFidelidad() {
 		return saldoFidelidad;
 	}
+
 }

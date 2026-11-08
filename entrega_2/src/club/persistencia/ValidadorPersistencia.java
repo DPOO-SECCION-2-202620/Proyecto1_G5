@@ -11,6 +11,12 @@ import club.competencias.FormatoCompetencia;
 import club.deportes.Categoria;
 import club.deportes.Modalidad;
 import club.entrenamientos.EstadoAsistencia;
+import club.torneos.EstadoInscripcion;
+import club.torneos.EstadoTorneo;
+import club.torneos.ModalidadTorneo;
+import club.torneos.TipoTorneo;
+import club.torneos.Torneo;
+import club.tienda.EstadoBono;
 
 final class ValidadorPersistencia {
 
@@ -19,11 +25,69 @@ final class ValidadorPersistencia {
 		Map<String, String> usuarios = validarUsuarios(datos.get(PersistenciaUsuariosJson.ARCHIVO));
 		Map<String, String> deportes = new LinkedHashMap<String, String>();
 		Map<String, String> equipos = validarDeportivo(datos.get(PersistenciaDeportivoJson.ARCHIVO), usuarios, deportes);
+		validarTorneos(datos.get(PersistenciaTorneosJson.ARCHIVO), usuarios, deportes, equipos);
 		Map<String, Boolean> instalaciones = validarReservas(datos.get(PersistenciaReservasJson.ARCHIVO), usuarios, deportes);
 		Map<String, Boolean> competencias = validarCompetencias(datos.get(PersistenciaCompetenciasJson.ARCHIVO), deportes, equipos);
 		validarPartidos(datos.get(PersistenciaPartidosJson.ARCHIVO), usuarios, deportes, equipos, competencias);
 		validarEntrenamientos(datos.get(PersistenciaEntrenamientosJson.ARCHIVO), usuarios, deportes, instalaciones);
-		if (!datos.get(PersistenciaComercialJson.ARCHIVO).isEmpty()) throw new PersistenciaException("Persistencia comercial no soportada todavía");
+		validarComercial(datos.get(PersistenciaComercialJson.ARCHIVO), usuarios);
+	}
+
+	private void validarComercial(List<Map<String, String>> registros, Map<String, String> usuarios) {
+		for (Map<String, String> r : registros) {
+			if (!List.of("TIENDA", "CAFETERIA").contains(requerido(r, "tipo"))) throw new PersistenciaException("Tipo de venta desconocido");
+			if (!usuarios.containsKey(requerido(r, "comprador"))) throw new PersistenciaException("Comprador inexistente");
+			LocalDateTime.parse(requerido(r, "fecha")); Double.parseDouble(requerido(r, "subtotal"));
+			Double.parseDouble(requerido(r, "impuestos")); Double.parseDouble(requerido(r, "descuentos"));
+			Double.parseDouble(requerido(r, "total")); Integer.parseInt(requerido(r, "puntosGanados"));
+			Integer.parseInt(requerido(r, "puntosRedimidos")); requerido(r, "bono");
+			Double.parseDouble(requerido(r, "montoOriginal")); Double.parseDouble(requerido(r, "valorDescontado"));
+		}
+	}
+
+	private void validarTorneos(List<Map<String, String>> registros, Map<String, String> usuarios,
+			Map<String, String> deportes, Map<String, String> equipos) {
+		Map<String, Boolean> torneos = new LinkedHashMap<String, Boolean>();
+		for (Map<String, String> r : registros) if ("TORNEO".equals(r.get("registro"))) {
+			String id = requerido(r, "id");
+			if (!"ADMINISTRADOR".equals(usuarios.get(requerido(r, "administrador")))) throw new PersistenciaException("Administrador de torneo inexistente");
+			if (!deportes.containsKey(requerido(r, "deporte"))) throw new PersistenciaException("Deporte de torneo inexistente");
+			requerido(r, "categoria"); ModalidadTorneo.valueOf(requerido(r, "modalidad"));
+			if (Integer.parseInt(requerido(r, "cupos")) <= 0) throw new PersistenciaException("Cupos de torneo inválidos");
+			TipoTorneo.valueOf(requerido(r, "tipo")); Double.parseDouble(requerido(r, "tarifa"));
+			Torneo.Formato.valueOf(requerido(r, "formato")); EstadoTorneo.valueOf(requerido(r, "estado"));
+			String fecha = requerido(r, "fechaInicio"); if (!fecha.isEmpty()) LocalDateTime.parse(fecha);
+			if (torneos.put(id, true) != null) throw new PersistenciaException("Torneo duplicado");
+		}
+		for (Map<String, String> r : registros) {
+			String clase = r.get("registro");
+			if ("INSCRIPCION".equals(clase)) {
+				if (!torneos.containsKey(requerido(r, "torneo"))) throw new PersistenciaException("Inscripción con torneo inexistente");
+				Integer.parseInt(requerido(r, "id")); LocalDateTime.parse(requerido(r, "fecha"));
+				validarBooleano(requerido(r, "preferencial")); Double.parseDouble(requerido(r, "tarifa"));
+				validarBooleano(requerido(r, "premio")); EstadoInscripcion.valueOf(requerido(r, "estado"));
+				for (String participante : separar(requerido(r, "participantes"))) validarParticipanteTorneo(participante, usuarios, equipos);
+			} else if ("ENCUENTRO".equals(clase)) {
+				if (!torneos.containsKey(requerido(r, "torneo"))) throw new PersistenciaException("Encuentro con torneo inexistente");
+				validarParticipanteTorneo(requerido(r, "participante1"), usuarios, equipos);
+				validarParticipanteTorneo(requerido(r, "participante2"), usuarios, equipos);
+				String primero = requerido(r, "puntaje1"), segundo = requerido(r, "puntaje2");
+				if (!primero.isEmpty()) Integer.parseInt(primero); if (!segundo.isEmpty()) Integer.parseInt(segundo);
+			} else if ("BONO".equals(clase)) {
+				requerido(r, "id"); if (!usuarios.containsKey(requerido(r, "propietario"))) throw new PersistenciaException("Propietario de bono inexistente");
+				if (Double.parseDouble(requerido(r, "valor")) <= 0) throw new PersistenciaException("Valor de bono inválido");
+				LocalDateTime.parse(requerido(r, "fecha")); EstadoBono.valueOf(requerido(r, "estado"));
+				String torneo = requerido(r, "torneo"); if (!torneo.isEmpty() && !torneos.containsKey(torneo)) throw new PersistenciaException("Torneo de bono inexistente");
+			} else if (!"TORNEO".equals(clase)) throw new PersistenciaException("Registro de torneo desconocido");
+		}
+	}
+
+	private void validarParticipanteTorneo(String participante, Map<String, String> usuarios,
+			Map<String, String> equipos) {
+		if (participante.startsWith("USUARIO:") && usuarios.containsKey(participante.substring(8))) return;
+		if (participante.startsWith("EQUIPO:") && equipos.containsKey(participante.substring(7))) return;
+		if (participante.startsWith("EXTERNO:") && participante.substring(8).split(";", -1).length == 3) return;
+		throw new PersistenciaException("Participante de torneo inexistente");
 	}
 
 	private Map<String, String> validarUsuarios(List<Map<String, String>> registros) {
@@ -56,6 +120,7 @@ final class ValidadorPersistencia {
 				String nombre = requerido(r, "nombre");
 				if (!deportes.containsKey(requerido(r, "deporte"))) throw new PersistenciaException("Equipo con deporte inexistente");
 				Categoria.valueOf(requerido(r, "categoria")); if (Integer.parseInt(requerido(r, "cupoMaximo")) < 0) throw new PersistenciaException("Cupo inválido");
+				if (Integer.parseInt(r.getOrDefault("puntosRanking", "0")) < 0) throw new PersistenciaException("Puntuación inválida");
 				validarBooleano(requerido(r, "activo")); if (equipos.put(nombre, requerido(r, "deporte")) != null) throw new PersistenciaException("Equipo duplicado");
 			} else if ("INSCRIPCION_INDIVIDUAL".equals(clase)) {
 				if (!"SOCIO".equals(usuarios.get(requerido(r, "socio"))) || !deportes.containsKey(requerido(r, "deporte"))) throw new PersistenciaException("Inscripción individual inconsistente");

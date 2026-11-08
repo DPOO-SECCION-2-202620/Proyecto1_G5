@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import club.deportes.Modalidad;
 import club.deportes.Padel;
@@ -13,6 +14,7 @@ import club.instalaciones.Instalacion;
 import club.personal.Entrenador;
 import club.tienda.Articulo;
 import club.tienda.Bebida;
+import club.tienda.BonoDescuento;
 import club.tienda.CodigoDescuento;
 import club.tienda.DetalleVenta;
 import club.tienda.GestorTienda;
@@ -20,10 +22,34 @@ import club.tienda.Inventario;
 import club.tienda.Snack;
 import club.tienda.UbicacionInventario;
 import club.tienda.VentaCafeteria;
+import club.tienda.Venta;
 import club.tienda.VentaTienda;
 import club.usuarios.Socio;
 
 public class PruebaVentas {
+	private Socio compradorBono;
+	private BonoDescuento bono1;
+	private VentaTienda ventaTienda;
+	private VentaCafeteria ventaCafeteria;
+	private VentaTienda otraVenta;
+
+	@BeforeEach
+	void prepararBonos() {
+		BonoDescuento.limpiar();
+		Venta.limpiarVentasConfirmadas();
+		compradorBono = new Socio("comprador-bono@club.co", "clave");
+		bono1 = new BonoDescuento(compradorBono, 10000);
+		compradorBono.guardarBono(bono1);
+		ventaTienda = new VentaTienda(compradorBono);
+		ventaTienda.agregarDetalle(new DetalleVenta(1,
+				new Articulo("Artículo bono", "Club", 50000, "Ropa")));
+		ventaCafeteria = new VentaCafeteria(compradorBono);
+		ventaCafeteria.agregarDetalle(new DetalleVenta(1,
+				new Bebida("Bebida bono", "Fría", 25000, false)));
+		otraVenta = new VentaTienda(compradorBono);
+		otraVenta.agregarDetalle(new DetalleVenta(1,
+				new Articulo("Otro artículo bono", "Club", 50000, "Ropa")));
+	}
 	@Test void tiendaAplicaIvaDiecinuevePorCiento() {
 		VentaTienda venta = ventaTienda(new Socio("iva@club.co", "clave"));
 		assertEquals(119.0, venta.liquidar(), 0.01);
@@ -108,4 +134,50 @@ public class PruebaVentas {
 		gestor.reabastecer(new Inventario(articulo, ubicacion, 0), 10);
 		return gestor;
 	}
+	
+	
+	// Nuevos Tests
+
+	@Test
+	void testUtilizarBonoTienda() {
+	    // HU-JUG-04: Aplicar descuento en tienda
+	    ventaTienda.aplicarBono(bono1);
+	
+	    assertEquals(40000, ventaTienda.getTotal());
+	}
+	
+	@Test
+	void testUtilizarBonoCafeteria() {
+	    // HU-JUG-04: Aplicar descuento en cafeteria
+	    ventaCafeteria.aplicarBono(bono1);
+	
+	    assertEquals(15000, ventaCafeteria.getTotal());
+	}
+	
+	@Test
+	void testBonoConOtroDescuento() {
+	    // HU-JUG-04: No acumular descuentos
+	    ventaTienda.aplicarDescuento(0.10);
+	
+	    assertThrows(IllegalStateException.class, () ->{ventaTienda.aplicarBono(bono1);});
+	}
+	
+	@Test
+	void testBonoUtilizado() {
+	    // HU-JUG-04: Actualizar estado del bono
+	    ventaTienda.aplicarBono(bono1);
+	    ventaTienda.confirmarVenta();
+	
+	    assertFalse(bono1.estaDisponible());
+	}
+	
+	@Test
+	void testBonoNoReutilizable() {
+	    // HU-JUG-04: No utilizar dos veces
+	    ventaTienda.aplicarBono(bono1);
+	    ventaTienda.confirmarVenta();
+	
+	    assertThrows(IllegalStateException.class, () ->{otraVenta.aplicarBono(bono1);});
+	}
+
 }

@@ -22,6 +22,9 @@ import club.instalaciones.Reserva;
 import club.partidos.Partido;
 import club.partidos.PartidoInterno;
 import club.partidos.PartidoPractica;
+import club.torneos.CatalogoTorneos;
+import club.tienda.BonoDescuento;
+import club.tienda.Venta;
 import club.usuarios.RepositorioUsuarios;
 
 public class PersistenciaClubJson implements IPersistenciaClub {
@@ -29,6 +32,7 @@ public class PersistenciaClubJson implements IPersistenciaClub {
 	private static final List<String> ARCHIVOS = List.of(
 			PersistenciaUsuariosJson.ARCHIVO,
 			PersistenciaDeportivoJson.ARCHIVO,
+			PersistenciaTorneosJson.ARCHIVO,
 			PersistenciaReservasJson.ARCHIVO,
 			PersistenciaCompetenciasJson.ARCHIVO,
 			PersistenciaPartidosJson.ARCHIVO,
@@ -104,6 +108,7 @@ public class PersistenciaClubJson implements IPersistenciaClub {
 		limpiarEstado();
 		new PersistenciaUsuariosJson().cargar(datos.get(PersistenciaUsuariosJson.ARCHIVO));
 		new PersistenciaDeportivoJson().cargar(datos.get(PersistenciaDeportivoJson.ARCHIVO));
+		new PersistenciaTorneosJson().cargar(datos.get(PersistenciaTorneosJson.ARCHIVO));
 		new PersistenciaReservasJson().cargar(datos.get(PersistenciaReservasJson.ARCHIVO));
 		new PersistenciaCompetenciasJson().cargar(datos.get(PersistenciaCompetenciasJson.ARCHIVO));
 		new PersistenciaPartidosJson().cargar(datos.get(PersistenciaPartidosJson.ARCHIVO));
@@ -116,6 +121,7 @@ public class PersistenciaClubJson implements IPersistenciaClub {
 		Files.createDirectories(temp);
 		Json.escribir(temp.resolve(PersistenciaUsuariosJson.ARCHIVO), new PersistenciaUsuariosJson().serializar());
 		Json.escribir(temp.resolve(PersistenciaDeportivoJson.ARCHIVO), new PersistenciaDeportivoJson().serializar());
+		Json.escribir(temp.resolve(PersistenciaTorneosJson.ARCHIVO), new PersistenciaTorneosJson().serializar());
 		Json.escribir(temp.resolve(PersistenciaReservasJson.ARCHIVO), new PersistenciaReservasJson().serializar());
 		Json.escribir(temp.resolve(PersistenciaCompetenciasJson.ARCHIVO), new PersistenciaCompetenciasJson().serializar());
 		Json.escribir(temp.resolve(PersistenciaPartidosJson.ARCHIVO), new PersistenciaPartidosJson().serializar());
@@ -155,6 +161,8 @@ public class PersistenciaClubJson implements IPersistenciaClub {
 		RepositorioUsuarios.getRepositorioUsuarios().clear();
 		Deporte.getDeportesRegistrados().clear();
 		Equipo.getEquiposDisponibles().clear(); Equipo.getEquiposRegistrados().clear();
+		CatalogoTorneos.limpiar();
+		BonoDescuento.limpiar(); Venta.limpiarVentasConfirmadas();
 		InscripcionAcademia.getInscripciones().clear();
 		Instalacion.getInstalaciones().clear(); Reserva.getReservas().clear();
 		Competencia.getCompetencias().clear(); SesionEntrenamiento.getSesiones().clear();

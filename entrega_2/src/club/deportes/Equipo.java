@@ -18,6 +18,7 @@ public abstract class Equipo {
 	private int cuposDisponibles;
 	private int cupoMaximo;
 	private boolean activo;
+	private int puntosRanking;
 	private List<InscripcionEquipo> nomina = new ArrayList<InscripcionEquipo>();
 	
 	private Deporte deporte;
@@ -33,6 +34,7 @@ public abstract class Equipo {
 		this.cupoMaximo = cupoMaximo;
 		this.cuposDisponibles = cupoMaximo;
 		this.activo = true;
+		this.puntosRanking = 0;
 		this.deporte = deporte;
 		
 		Equipo.EquiposDisponibles.put(nombre, this);
@@ -88,6 +90,15 @@ public abstract class Equipo {
 
 	public Deporte getDeporte() {
 		return deporte;
+	}
+
+	public int getPuntosRanking() {
+		return puntosRanking;
+	}
+
+	public void sumarPuntosRanking(int puntos) {
+		if (puntos < 0) throw new IllegalArgumentException("Los puntos no pueden ser negativos");
+		this.puntosRanking += puntos;
 	}
 
 	public List<InscripcionEquipo> getNomina() {

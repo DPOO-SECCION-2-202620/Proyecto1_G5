@@ -28,6 +28,7 @@ final class PersistenciaDeportivoJson {
 			Equipo equipo = new Equipo(PersistenciaSoporte.requerido(registro, "nombre"),
 					Categoria.valueOf(PersistenciaSoporte.requerido(registro, "categoria")),
 					Integer.parseInt(PersistenciaSoporte.requerido(registro, "cupoMaximo")), deporte) { };
+			equipo.sumarPuntosRanking(Integer.parseInt(registro.getOrDefault("puntosRanking", "0")));
 			estados.put(equipo, Boolean.parseBoolean(PersistenciaSoporte.requerido(registro, "activo")));
 		}
 		for (Map<String, String> registro : registros) {
@@ -56,6 +57,7 @@ final class PersistenciaDeportivoJson {
 			valores.put("registro", "EQUIPO"); valores.put("nombre", equipo.getNombre());
 			valores.put("categoria", equipo.getCategoria().name()); valores.put("cupoMaximo", String.valueOf(equipo.getCupoMaximo()));
 			valores.put("deporte", equipo.getDeporte().getNombre()); valores.put("activo", String.valueOf(equipo.isActivo()));
+			valores.put("puntosRanking", String.valueOf(equipo.getPuntosRanking()));
 			objetos.add(Json.objeto(valores));
 		}
 		for (InscripcionAcademia inscripcion : InscripcionAcademia.getInscripciones())

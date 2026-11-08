@@ -71,6 +71,14 @@ public class PartidoCompetencia extends Partido {
 		this.marcadorLocal = marcadorLocal;
 		this.marcadorVisitante = marcadorVisitante;
 		competencia.registrarResultado(equipoLocal, equipoVisitante, marcadorLocal, marcadorVisitante);
+		if (marcadorLocal == marcadorVisitante) {
+			equipoLocal.sumarPuntosRanking(1);
+			equipoVisitante.sumarPuntosRanking(1);
+		} else if (marcadorLocal > marcadorVisitante) {
+			equipoLocal.sumarPuntosRanking(3);
+		} else {
+			equipoVisitante.sumarPuntosRanking(3);
+		}
 	}
 
 	static List<PartidoCompetencia> crearEmparejamientos(Competencia competencia,

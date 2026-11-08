@@ -55,9 +55,7 @@ public class VentaTienda extends Venta {
                 "El codigo no aplica al comprador");
         }
 
-        this.descuentos = calcularSubtotal() * porcentaje;
-
-        return descuentos;
+		return aplicarDescuento(porcentaje);
     }
 
     // Calcular IVA del 19 %

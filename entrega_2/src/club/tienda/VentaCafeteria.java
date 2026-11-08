@@ -89,7 +89,7 @@ public class VentaCafeteria extends Venta {
 
     // Calcular impuesto al consumo del 8 %
     public double calcularImpuesto() {
-        return calcularSubtotal() * IMPUESTO_CONSUMO;
+		return (calcularSubtotal() - descuentos) * IMPUESTO_CONSUMO;
     }
 
     // Modificar el porcentaje de propina
@@ -145,10 +145,11 @@ public class VentaCafeteria extends Venta {
         }
 
         double base = calcularSubtotal();
-        double impuestoCalculado = calcularImpuesto();
+		double baseConDescuento = base - descuentos;
+		double impuestoCalculado = calcularImpuesto();
         double propina = base * propinaPorcentaje;
 
-        double totalCalculado = base + impuestoCalculado
+		double totalCalculado = baseConDescuento + impuestoCalculado
                 + propina - puntosRedimidos;
 
         if (totalCalculado < 0) {
@@ -158,7 +159,6 @@ public class VentaCafeteria extends Venta {
 
         this.subtotal = base;
         this.impuestos = impuestoCalculado;
-        this.descuentos = 0;
         this.total = totalCalculado;
 
         return total;

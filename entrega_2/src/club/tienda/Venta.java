@@ -11,6 +11,7 @@ import club.usuarios.*;
 
 
 public abstract class Venta {
+	private static final List<Venta> ventasConfirmadas = new ArrayList<Venta>();
 
     // Atributos
     protected LocalDateTime fecha;
@@ -25,6 +26,10 @@ public abstract class Venta {
     protected Usuario comprador;
 
     private boolean confirmada;
+	private BonoDescuento bonoAplicado;
+	private boolean descuentoConvencional;
+	private double montoOriginal;
+	private double valorDescontado;
 
     // ctor 1: venta nueva
     protected Venta(Usuario comprador) {
@@ -94,7 +99,10 @@ public abstract class Venta {
                 "El detalle no puede ser nulo");
         }
 
-        detalleVentas.add(detalle);
+		if (bonoAplicado != null) bonoAplicado.cancelarReserva(this);
+		bonoAplicado = null;
+		descuentoConvencional = false;
+		detalleVentas.add(detalle);
 
         // Si cambia el carrito, se debe reaplicar
         // cualquier descuento que hubiera sido calculado.
@@ -116,6 +124,39 @@ public abstract class Venta {
 
     // Cada subclase implementa su propia liquidacion
     public abstract double liquidar();
+
+	public void aplicarBono(BonoDescuento bono) {
+		if (confirmada) throw new IllegalStateException("La venta ya está confirmada");
+		if (bono == null) throw new IllegalArgumentException("El bono es obligatorio");
+		if (bonoAplicado != null || descuentoConvencional || descuentos > 0) {
+			throw new IllegalStateException("Los descuentos no son acumulables");
+		}
+		if (bono.getPropietario() != comprador) throw new IllegalArgumentException("El bono pertenece a otro usuario");
+		if (fecha.isBefore(bono.getFechaObtencion())) throw new IllegalStateException("La compra es anterior al bono");
+		double base = calcularSubtotal();
+		if (base <= 0) throw new IllegalStateException("La venta no tiene productos");
+		bono.reservar(this);
+		bonoAplicado = bono;
+		montoOriginal = base;
+		valorDescontado = Math.min(base, bono.getValor());
+		descuentos = valorDescontado;
+		subtotal = base;
+		total = base - descuentos;
+	}
+
+	public double aplicarDescuento(double porcentaje) {
+		if (confirmada) throw new IllegalStateException("La venta ya está confirmada");
+		if (bonoAplicado != null || descuentoConvencional) throw new IllegalStateException("Los descuentos no son acumulables");
+		if (!Double.isFinite(porcentaje) || porcentaje <= 0 || porcentaje > 1) {
+			throw new IllegalArgumentException("El porcentaje no es válido");
+		}
+		montoOriginal = calcularSubtotal();
+		valorDescontado = montoOriginal * porcentaje;
+		descuentos = valorDescontado;
+		descuentoConvencional = true;
+		total = montoOriginal - descuentos;
+		return descuentos;
+	}
 
     // Registrar puntos que se quieren redimir
     public void redimirPuntos(int cantidad) {
@@ -161,11 +202,19 @@ public abstract class Venta {
                 "La venta no tiene productos");
         }
 
-        // Aplicar los calculos de la subclase
-        liquidar();
-
-        this.confirmada = true;
+		try {
+			liquidar();
+			if (bonoAplicado != null) bonoAplicado.utilizar(this);
+			this.confirmada = true;
+			ventasConfirmadas.add(this);
+		} catch (RuntimeException e) {
+			if (bonoAplicado != null) bonoAplicado.cancelarReserva(this);
+			bonoAplicado = null; descuentos = 0; valorDescontado = 0;
+			throw e;
+		}
     }
+
+	public void confirmarVenta() { confirmar(); }
 
     // Getters
     public LocalDateTime getFecha() {
@@ -207,4 +256,18 @@ public abstract class Venta {
     public boolean estaConfirmada() {
         return confirmada;
     }
+
+	public BonoDescuento getBonoAplicado() { return bonoAplicado; }
+	public double getMontoOriginal() { return montoOriginal == 0 ? calcularSubtotal() : montoOriginal; }
+	public double getValorDescontado() { return valorDescontado; }
+
+	public void restaurarBono(BonoDescuento bono, double montoOriginal, double valorDescontado) {
+		this.bonoAplicado = bono;
+		this.montoOriginal = montoOriginal;
+		this.valorDescontado = valorDescontado;
+	}
+
+	public static void registrarHistorica(Venta venta) { ventasConfirmadas.add(venta); }
+	public static List<Venta> getVentasConfirmadas() { return new ArrayList<Venta>(ventasConfirmadas); }
+	public static void limpiarVentasConfirmadas() { ventasConfirmadas.clear(); }
 }
